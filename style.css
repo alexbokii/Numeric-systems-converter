@@ -31,7 +31,7 @@ h1 {
 
 .system {
   height: 50px;
-  width: 30%;
+  width: 23%;
   float: left;
   margin-left: 2%;
 }
@@ -47,4 +47,10 @@ h1 {
   padding-left: 20px;
   color: #193850;
   font-size: 1.7em;
+}
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
 }

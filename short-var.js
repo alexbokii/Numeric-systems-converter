@@ -3,8 +3,10 @@ $(function() {
   var activeSystem = undefined;
 
   $('#inputs div input').on('keyup', function() {
+    var system = findActiveSystem($(this));
+    validateNumberSystem(system);
     if(activeSystem === undefined) {
-      findActiveSystem();
+      setActiveSystem();
       calculateNumberInAnotherSystems($('#' + activeSystem + '').val());
     }
     else {
@@ -12,13 +14,18 @@ $(function() {
     }
   });
 
-  function findActiveSystem() {
+  function findActiveSystem(a) {
+    console.log(a.attr('id'));
+    return a.attr('id');
+  }
+
+  function setActiveSystem() {
     var inputList = $('#inputs div input');
     for(var i = 0; i < inputList.length; i++) {
       if($(inputList[i]).val()) {
         activeSystem = $(inputList[i]).attr('id');
       }
-    }
+    } 
   }
 
   function calculateNumberInAnotherSystems(num) {
@@ -28,6 +35,9 @@ $(function() {
 
       var octalResult = convertDecimalToOctal(num);
       $('#octal').val(octalResult);
+
+      var hexadecimal = convertDecimalToHexadecimal(num);
+      $('#hexadecimal').val(hexadecimal);
     }
 
     else if(activeSystem === 'binary') {
@@ -43,6 +53,15 @@ $(function() {
       $("#decimal").val(decimalResult);
       var binaryResult = convertDecimalToBinary(decimalResult);
       $('#binary').val(binaryResult);
+    }
+
+    else if(activeSystem === 'hexadecimal') {
+      var decimalResult = convertHexadecimalToDecimal(num);
+      $("#decimal").val(decimalResult);
+      var binaryResult = convertDecimalToBinary(decimalResult);
+      $('#binary').val(binaryResult);
+      var octalResult = convertDecimalToOctal(decimalResult);
+      $('#octal').val(octalResult);
     }
 
     else {
@@ -87,6 +106,40 @@ $(function() {
     return result;
   } 
 
+  function convertDecimalToHexadecimal(number) {
+    var currentNumber = number;
+    var hexadecimal = [];
+    do {
+      var remainder = currentNumber % 16;
+      if(remainder === 10 ) {
+        remainder = 'A';
+      }
+      else if(remainder === 11) {
+        remainder = 'B';
+      }
+      else if(remainder === 12) {
+        remainder = 'C';
+      }
+      else if(remainder === 13) {
+        remainder = 'D';
+      }
+      else if(remainder === 14) {
+        remainder = 'E';
+      }
+      else if(remainder === 15) {
+        remainder = 'F';
+      }
+      hexadecimal.push(remainder);
+      var currentNumber = parseInt(currentNumber / 16);
+      console.log(remainder);
+    }
+    while (currentNumber != 0);
+
+    hexadecimal.reverse();
+    var result = showArrayOnScreen(hexadecimal);
+    return result;
+  } 
+
   function convertBinaryToDecimal(number) {
     var array = splitNumberAndUNshiftToArray(number);
     array.reverse();
@@ -114,8 +167,25 @@ $(function() {
     return result;
   }
 
+  function convertHexadecimalToDecimal(number) {
+    var hexArrayString = number.split('');
+    var hexArray = hexArrayString.map(function(num) {
+      return parseFloat(num);
+    });
+    hexArray.reverse();
+    console.log(hexArray);
+
+    var result = 0;
+    for(var i = 0; i < hexArray.length; i++) {
+      result = result + hexArray[i] * Math.pow(16, i);
+    }
+    return result;
+  }
+
   function showArrayOnScreen(array) {
-    var result = parseFloat(array.join(''));
+    console.log(array);
+    var result = array.join('');
+    console.log(result);
     return result;
   }
 
@@ -128,6 +198,31 @@ $(function() {
       numberArray.push(parseInt(currentNum));
     }
     return numberArray;
+  }
+
+  // validation
+  function validateNumberSystem(system) {
+    if(system === 'decimal') {
+      var re = /\d/;
+      var ok = re.exec($('#decimal').val());
+      if(!ok) {
+        alert("This field requires a number");
+      }
+    }
+    else if(system === 'binary') {
+      var re = /[0-1]/;
+      var ok = re.exec($('#binary').val());
+      if(!ok) {
+        alert("This field requires numbers 0 and 1");
+      }
+    }
+    else if(system === 'octal') {
+      var re = /[0-7]/;
+      var ok = re.exec($('#octal').val());
+      if(!ok) {
+        alert("This field requires numbers from 0 to 7");
+      }
+    }
   }
 
 });
